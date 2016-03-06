@@ -1,0 +1,6 @@
+Keras==0.3.2
+numpy==1.10.4
+PyYAML==3.11
+scipy==0.17.0
+six==1.10.0
+Theano==0.8.0rc1
