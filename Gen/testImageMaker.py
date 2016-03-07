@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 import random as rand
-
+import os
 
 
 def makeCircle(r,centre,axis):
@@ -20,7 +20,7 @@ def makeSquare(l,centre,axis):
     axis.add_artist(rec)
     return
 
-def makeImage(numCircles,numSquares):
+def makeImage(numCircles,numSquares,imageNum):
     fig=plt.figure(figsize=[8,8])
     axis=fig.gca()
     plt.xticks([])
@@ -29,17 +29,42 @@ def makeImage(numCircles,numSquares):
         coords=randCoord()
         makeCircle(0.03,coords,axis)
     coords=randCoord()
-    makeSquare(0.05,coords,axis)
+    makeSquare(0.05,coords,axis)    
     plt.tight_layout(pad=0,h_pad=0,w_pad=0)
-    plt.savefig("test2")
+    plt.savefig("Images/testImages"+str(imageNum))
+    return coords
 
 def randCoord():
     x=rand.random()
     y=rand.random()
     return [x,y]
+
+def recordPos(imageNum,coords):
+    #saving coords of square
+    squarePos=open("testValues.txt","a")
+    coordsString="{0},{1}".format(coords[0]+0.025,coords[1]+0.025)
+    squarePos.write(str(imageNum)+","+coordsString+"\n")
+    squarePos.close()
     
 if __name__ == "__main__":
-    makeImage(20,1)
+    numCircles=20 #number of circles per image
+    numSquares=1 #number of squares per image
+    numImages=5 #number of images
+    
+    imageFolder="Images"
+    for theFile in os.listdir(imageFolder):
+        filePath=os.path.join(imageFolder,theFile)
+        try:
+            if os.path.isfile(filePath):
+                os.unlink(filePath)
+        except Exception as e:
+            print(e)
+    
+    open("testValues.txt","w").close #makes clean file before writing to it
+    for i in range(numImages):
+        recordPos(i,makeImage(numCircles,numSquares,i))
+    
+
 
 
 
