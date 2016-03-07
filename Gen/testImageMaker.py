@@ -51,6 +51,7 @@ if __name__ == "__main__":
     numSquares=1 #number of squares per image
     numImages=5 #number of images
     
+    #removes previous files
     imageFolder="Images"
     for theFile in os.listdir(imageFolder):
         filePath=os.path.join(imageFolder,theFile)
@@ -60,7 +61,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
     
-    open("testValues.txt","w").close #makes clean file before writing to it
     for i in range(numImages):
         recordPos(i,makeImage(numCircles,numSquares,i))
     
