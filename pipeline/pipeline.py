@@ -1,5 +1,6 @@
 import scipy.misc as misc
 import matplotlib.pyplot as plt
+import numpy as np
 
 class InputImage:
     """
@@ -8,7 +9,6 @@ class InputImage:
     first lopping the image to match a factor (hard coded to 8), then
     grayscaling the image and finally reducing the size by a factor of 8.
     """
-    #TODO: Add information about where the stimulus is located, for training.
     def __init__(self,filepath):
         self.fovealImg    = misc.imread(filepath)
         self.peripheryImg = self._buildPeriphery()
@@ -47,6 +47,27 @@ class InputImage:
         loppedImg = self.fovealImg[left:right+1,top:bottom+1,:]
         return loppedImg
 
+class TrainingImage(InputImage):
+    def __init__(self,filepath,stimLoc,testing=False):
+        self.fovealImg    = misc.imread(filepath)
+        self.peripheryImg = self._buildPeriphery()
+        self.stimLocFoveal = map(int,stimLoc*800)
+        self.stimLocPeriphery = map(int,stimLoc*10)
+
+        self.periTrainImg = np.zeros((10,10))
+        self.periTrainImg[9-self.stimLocPeriphery[1],self.stimLocPeriphery[0]] = 1
+
+        if testing==True:
+            print stimLoc
+            plt.subplot(221)
+            plt.imshow(self.fovealImg)
+            plt.subplot(222)
+            plt.imshow(self.peripheryImg)
+            plt.subplot(223)
+            plt.imshow(self.periTrainImg)
+            plt.show()
+        return
+
 if __name__ == '__main__':
     test = InputImage('test.png')
     
@@ -55,3 +76,6 @@ if __name__ == '__main__':
     plt.subplot(212)
     plt.imshow(test.peripheryImg,cmap='gray')
     plt.show()
+
+    test = TrainingImage('test.png',np.random.random(2))
+    print test.stimLocPeriphery,test.stimLocFoveal

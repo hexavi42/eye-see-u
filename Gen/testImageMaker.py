@@ -16,6 +16,7 @@ def makeCircle(r,centre,axis):
     return
 
 def makeSquare(l,centre,axis):
+    centre = [c-0.025 for c in centre]
     rec=plt.Rectangle(centre,l,l,color="r")
     axis.add_artist(rec)
     return
@@ -32,6 +33,7 @@ def makeImage(numCircles,numSquares,imageNum):
     makeSquare(0.05,coords,axis)    
     plt.tight_layout(pad=0,h_pad=0,w_pad=0)
     plt.savefig("Images/testImages"+str(imageNum))
+    plt.close()
     return coords
 
 def randCoord():
@@ -42,14 +44,14 @@ def randCoord():
 def recordPos(imageNum,coords):
     #saving coords of square
     squarePos=open("testValues.txt","a")
-    coordsString="{0},{1}".format(coords[0]+0.025,coords[1]+0.025)
+    coordsString="{0},{1}".format(coords[0],coords[1])
     squarePos.write(str(imageNum)+","+coordsString+"\n")
     squarePos.close()
     
 if __name__ == "__main__":
     numCircles=20 #number of circles per image
     numSquares=1 #number of squares per image
-    numImages=5 #number of images
+    numImages=1000 #number of images
     
     #removes previous files
     imageFolder="Images"
@@ -63,20 +65,3 @@ if __name__ == "__main__":
     
     for i in range(numImages):
         recordPos(i,makeImage(numCircles,numSquares,i))
-    
-
-
-
-
-#fig=plt.figure(figsize=(8,8),dpi=100)
-#circ=plt.Circle([0,0],2)
-#fig.gca().add_artist(circ)#http://stackoverflow.com/questions/9215658/plot-a-circle-with-pyplot
-#plt.axis([-10,10,-10,10])#sets axis lengths
-#plt.xticks([])#labels axis
-#plt.yticks([])
-#plt.tight_layout()
-#rec=plt.Rectangle([0,2],2,2)
-#fig.gca().add_artist(rec)
-#plt.show()
-##plt.savefig("test1")
-#plt.show()
