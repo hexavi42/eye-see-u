@@ -18,7 +18,7 @@ class InputImage:
         loppedImg = self._lop()
         gray = self._toGray(loppedImg)
         reduced = misc.imresize(gray,1/8.)
-
+        reduced = reduced[np.newaxis,:,:]
         return reduced
 
     def _toGray(self,array):
@@ -51,13 +51,22 @@ class TrainingImage(InputImage):
     def __init__(self,filepath,stimLoc,testing=False):
         self.fovealImg    = misc.imread(filepath)
         self.peripheryImg = self._buildPeriphery()
+
+        #print self.peripheryImg[np.newaxis,np.newaxis,:,:].shape
         self.stimLocFoveal = map(int,stimLoc*800)
         self.stimLocPeriphery = map(int,stimLoc*10)
 
-        self.periTrainImg = np.zeros((10,10))
-        self.periTrainImg[9-self.stimLocPeriphery[1],self.stimLocPeriphery[0]] = 1
+        foveInd = self._extractIndex(self.stimLocFoveal,800)
+        periInd = self._extractIndex(self.stimLocPeriphery,10)
+        
+        self.periTrainVec = np.zeros(100)
+        self.periTrainVec[periInd] = 1
+        self.foveTrainVec = np.zeros(640000)
+        self.foveTrainVec[foveInd] = 1
 
         if testing==True:
+            self.periTrainImg = np.zeros((10,10))
+            self.periTrainImg[9-self.stimLocPeriphery[1],self.stimLocPeriphery[0]] = 1
             print stimLoc
             plt.subplot(221)
             plt.imshow(self.fovealImg)
@@ -67,6 +76,9 @@ class TrainingImage(InputImage):
             plt.imshow(self.periTrainImg)
             plt.show()
         return
+
+    def _extractIndex(self,stim,size):
+        return stim[0]*size + stim[1]
 
 if __name__ == '__main__':
     test = InputImage('test.png')
