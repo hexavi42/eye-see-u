@@ -15,13 +15,25 @@ def makeCircle(r,centre,axis):
     axis.add_artist(circ)
     return
 
-def makeSquare(l,centre,axis):
-    centre = [c-0.025 for c in centre]
-    rec=plt.Rectangle(centre,l,l,color="r")
+def makeSquare(length,centre,axis):
+    centre = [c-0.025 for c in centre] #Make it the true center
+    rec=plt.Rectangle(centre,length,length,color="r")
     axis.add_artist(rec)
     return
 
-def makeImage(numCircles,numSquares,imageNum):
+def randCoord():
+    x=rand.random()
+    y=rand.random()
+    return [x,y]
+
+def recordPos(filepath,imageNum,coords):
+    #saving coords of square
+    squarePos=open(filepath,"a")
+    coordsString="{0},{1}".format(coords[0],coords[1])
+    squarePos.write(str(imageNum)+","+coordsString+"\n")
+    squarePos.close()
+
+def makeImage(numCircles,numSquares,imageNum,filepath):
     fig=plt.figure(figsize=[8,8])
     axis=fig.gca()
     plt.xticks([])
@@ -32,22 +44,10 @@ def makeImage(numCircles,numSquares,imageNum):
     coords=randCoord()
     makeSquare(0.05,coords,axis)    
     plt.tight_layout(pad=0,h_pad=0,w_pad=0)
-    plt.savefig("Images/testImages"+str(imageNum))
+    plt.savefig(filepath+"/testImages"+str(imageNum))
     plt.close()
     return coords
 
-def randCoord():
-    x=rand.random()
-    y=rand.random()
-    return [x,y]
-
-def recordPos(imageNum,coords):
-    #saving coords of square
-    squarePos=open("testValues.txt","a")
-    coordsString="{0},{1}".format(coords[0],coords[1])
-    squarePos.write(str(imageNum)+","+coordsString+"\n")
-    squarePos.close()
-    
 if __name__ == "__main__":
     numCircles=20 #number of circles per image
     numSquares=1 #number of squares per image

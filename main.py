@@ -1,42 +1,35 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Convolution2D, MaxPooling2D, Activation, Dense, Flatten
+from keras.layers import Convolution2D, MaxPooling2D, Activation, Dense, Flatten, Dropout
 from keras.optimizers import SGD
-from pipeline.pipeline import TrainingImage
+from keras.utils import np_utils
 import matplotlib.pyplot as plt
 
 def main():
     #Build model
+
     periModel = Sequential()
-    
-    firstHiddenLayer = Convolution2D(1,5,5,input_shape=(1,100,100))
-    periModel.add(firstHiddenLayer)
+    periModel.add(Convolution2D(1,20,20,input_shape=(1,100,100)))
     periModel.add(Activation('tanh'))
-    
-    poolingLayer = MaxPooling2D(pool_size=(10,10))
-    periModel.add(poolingLayer)
-
+    periModel.add(MaxPooling2D(pool_size=(10,10)))
     periModel.add(Flatten())
-
-    outputLayer = Dense(output_dim=100)
-    periModel.add(outputLayer)
+    periModel.add(Dense(output_dim=100))
     periModel.add(Activation('softmax'))
 
-    periModel.compile(optimizer='sgd',loss='mse')
+    periModel.compile(optimizer='sgd',loss='categorical_crossentropy')
 
     #Fetch Data
-    stimLocs = np.loadtxt('Gen/testValues.txt',delimiter=',')
-    data = []
-    answers = []
+    data = np.load('data/peripheryImages.npy')
+    answers=np.load('data/peripheryIndexes.npy')
+    answers = np_utils.to_categorical(answers,100)
 
-    for i in range(100):
-        t = TrainingImage('Gen/Images/testImages{0}.png'.format(i),stimLocs[i][1:])
-        data.append(t.peripheryImg)
-        answers.append(t.periTrainVec)
-    data = np.array(data)
-    answers=np.array(answers)
-
-    periModel.fit(data, answers, nb_epoch=50,batch_size=10)
+    periModel.fit(data, answers, nb_epoch=20,batch_size=64)
+    
+    x = periModel.predict(data)
+    for i,j in enumerate(x):
+        print np.argmax(answers[i])
+        plt.plot(j)
+        plt.show()
     return
 
 if __name__ == '__main__':

@@ -52,17 +52,16 @@ class TrainingImage(InputImage):
         self.fovealImg    = misc.imread(filepath)
         self.peripheryImg = self._buildPeriphery()
 
-        #print self.peripheryImg[np.newaxis,np.newaxis,:,:].shape
         self.stimLocFoveal = map(int,stimLoc*800)
         self.stimLocPeriphery = map(int,stimLoc*10)
 
-        foveInd = self._extractIndex(self.stimLocFoveal,800)
-        periInd = self._extractIndex(self.stimLocPeriphery,10)
+        self.foveInd = self._extractIndex(self.stimLocFoveal,800)
+        self.periInd = self._extractIndex(self.stimLocPeriphery,10)
         
         self.periTrainVec = np.zeros(100)
-        self.periTrainVec[periInd] = 1
+        self.periTrainVec[self.periInd] = 1
         self.foveTrainVec = np.zeros(640000)
-        self.foveTrainVec[foveInd] = 1
+        self.foveTrainVec[self.foveInd] = 1
 
         if testing==True:
             self.periTrainImg = np.zeros((10,10))
@@ -86,7 +85,7 @@ if __name__ == '__main__':
     plt.subplot(211)
     plt.imshow(test.fovealImg)
     plt.subplot(212)
-    plt.imshow(test.peripheryImg,cmap='gray')
+    #plt.imshow(test.peripheryImg,cmap='gray')
     plt.show()
 
     test = TrainingImage('test.png',np.random.random(2))
