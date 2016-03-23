@@ -62,7 +62,7 @@ target/
 .ipynb_checkpoints
 
 #Images
-.png
+*.png
 
 #Numpy Binary
-.npy
+*.npy
