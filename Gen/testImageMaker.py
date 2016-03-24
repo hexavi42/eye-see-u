@@ -51,7 +51,7 @@ def makeImage(numCircles,numSquares,imageNum,filepath):
 if __name__ == "__main__":
     numCircles=20 #number of circles per image
     numSquares=1 #number of squares per image
-    numImages=1000 #number of images
+    numImages=10 #number of images
     
     #removes previous files
     imageFolder="Images"
