@@ -5,6 +5,31 @@ from Gen.testImageMaker import randCoord,makeCircle,makeSquare
 from multiprocessing import Process,Pipe
 import shutil,os
 
+def makeImagesV3(filepath,numTriangles):
+    bigImage = np.zeros((3,800,800))
+    tinyImage= np.zeros((1,80,80))
+
+    bigSquare = np.zeros((3,39,39))
+    bigSquare[0] = np.ones((39,39))*255
+    tinySquare= np.zeros((1,3,3))
+    tinySquare[0]= np.ones((3,3))*255
+    
+    bigTriangle = np.zeros((3,39,39))
+    for i in range(39):
+        bigTriangle[2,i,:i+1] = np.ones(i+1)*255
+    tinyTriangle = np.zeros((1,3,3))
+    for i in range(3):
+        tinyTriangle[0,i,:i+1] = np.ones(i+1)*255
+    for i in range(numTriangles):
+        x,y = np.random.randint(20,780,2)
+        bigImage[:,y-19:y+20,x-19:x+20] = bigTriangle
+        tinyImage[0,y/10-1:y/10+2,x/10-1:x/10+2] = tinyTriangle
+    x,y = np.random.randint(20,780,2)
+    bigImage[:,y-19:y+20,x-19:x+20] = bigSquare
+    tinyImage[0,y/10-1:y/10+2,x/10-1:x/10+2] = tinySquare
+
+    return [(bigImage,y*800+x),(tinyImage,y/200 * 4 + x/200)]
+
 def makeImagesV2(filepath,numCircles):
     fig=plt.figure(figsize=[8,8])
     axis=fig.gca()
@@ -18,7 +43,8 @@ def makeImagesV2(filepath,numCircles):
     plt.tight_layout(pad=0,h_pad=0,w_pad=0)
     plt.savefig(filepath)
     plt.close()
-    return coords
+    fove, peri = loadImage(filepath,coords)
+    return fove, peri
 
 def loadImage(filepath,coords):
     img = TrainingImage(filepath,np.array(coords))
@@ -35,8 +61,7 @@ def parallelizedLoops(numImgs,num,conn):
     peripheryIndexes = np.zeros(numImgs)
     
     for i in range(numImgs):
-        coords = makeImagesV2('data/tmp/test%s.png'%num,0) #20 circles or 0 circles
-        fove, peri = loadImage('data/tmp/test%s.png'%num,coords)
+        fove, peri = makeImagesV3('data/tmp/test%s.png'%num,20) #20 circles or 0 circles
         # fovealImages[i] = fove[0] #FOVEA
         peripheryImages[i] = peri[0]
         # fovealIndexes[i] = fove[1] #FOVEA
@@ -88,4 +113,4 @@ def main(numImgs):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(10000)
+    main(60000)
