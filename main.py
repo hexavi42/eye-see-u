@@ -9,7 +9,7 @@ def main():
     #Build model
 
     periModel = Sequential()
-    periModel.add(Convolution2D(1,3,3,input_shape=(1,80,80)))
+    periModel.add(Convolution2D(4,3,3,input_shape=(1,80,80),init='normal'))
     periModel.add(Activation('relu'))
     periModel.add(MaxPooling2D(pool_size=(4,4)))
     periModel.add(Flatten())
@@ -24,7 +24,7 @@ def main():
     answers = np.load('data/peripheryIndexes.npy')
     answers = np_utils.to_categorical(answers,16)
 
-    periModel.fit(data, answers, nb_epoch=24,batch_size=128)
+    periModel.fit(data, answers, nb_epoch=6,batch_size=128)
     
     x = periModel.predict(data[:10])
     print x
