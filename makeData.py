@@ -54,14 +54,14 @@ def loadImage(filepath,coords):
     periInd = img.periInd
     return [(foveImg,foveInd),(periImg,periInd)]
 
-def parallelizedLoops(numImgs,num,conn):
+def parallelizedLoops(numImgs,num,numDistractors,conn):
     # fovealImages = np.zeros((numImgs,800,800,4)) #FOVEA #This is the wrong shape for the network it should be (3,400,400)
     peripheryImages = np.zeros((numImgs,1,80,80))
     # fovealIndexes = np.zeros(numImgs) #FOVEA
     peripheryIndexes = np.zeros(numImgs)
     
     for i in range(numImgs):
-        fove, peri = makeImagesV3('data/tmp/test%s.png'%num,20) #20 circles or 0 circles
+        fove, peri = makeImagesV3('data/tmp/test%s.png'%num,numDistractors)
         # fovealImages[i] = fove[0] #FOVEA
         peripheryImages[i] = peri[0]
         # fovealIndexes[i] = fove[1] #FOVEA
@@ -70,12 +70,12 @@ def parallelizedLoops(numImgs,num,conn):
     conn.send((None,peripheryImages,None,peripheryIndexes))#(fovealImages,peripheryImages,fovealIndexes,peripheryIndexes)) #FOVEA
     return
 
-def refactor(numImgs,iteration):
+def refactor(numImgs,numDistractors,iteration):
     numProcess = 4
     subNumImages = numImgs/numProcess
     parentConns, childConns = zip(*[Pipe() for _ in range(numProcess)])
     procs = [Process(target=parallelizedLoops, 
-                     args=(subNumImages,_,childConns[_]))
+                     args=(subNumImages,_,numDistractors,childConns[_]))
                          for _ in range(numProcess)]
     for proc in procs:
         proc.start()
@@ -96,14 +96,14 @@ def refactor(numImgs,iteration):
     np.save('data/tmp/peripheryIndexes{}.npy'.format(iteration),peripheryIndexes)
 
 
-def main(numImgs):
+def main(numImgs,numDistractors):
     if not os.path.exists('data/tmp'):
         os.makedirs('data/tmp')
     
     subNumImages = 1000 #100 #FOVEA
     numIter = numImgs/subNumImages
     for i in range(numIter):
-        refactor(subNumImages,i)
+        refactor(subNumImages,numDistractors,i)
         print '{} out of {}'.format(i,numIter)
 
     dataKinds = ['peripheryImages','peripheryIndexes'] # ['fovealImages','peripheryImages','fovealIndexes','peripheryIndexes'] #FOVEA
@@ -113,4 +113,4 @@ def main(numImgs):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(60000)
+    main(20000,0)

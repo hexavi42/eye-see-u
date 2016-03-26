@@ -9,14 +9,14 @@ def main():
     #Build model
 
     periModel = Sequential()
-    periModel.add(Convolution2D(4,3,3,input_shape=(1,80,80)))
+    periModel.add(Convolution2D(1,3,3,input_shape=(1,80,80)))
     periModel.add(Activation('relu'))
-    periModel.add(MaxPooling2D(pool_size=(2,2)))
+    periModel.add(MaxPooling2D(pool_size=(4,4)))
     periModel.add(Flatten())
     periModel.add(Dense(output_dim=16))
     periModel.add(Activation('softmax'))
 
-    sgd = SGD(lr=1e-6)
+    sgd = SGD(lr=1e-5, momentum=0.9, nesterov=True)
     periModel.compile(optimizer=sgd,loss='categorical_crossentropy')
 
     #Fetch Data
@@ -24,7 +24,7 @@ def main():
     answers = np.load('data/peripheryIndexes.npy')
     answers = np_utils.to_categorical(answers,16)
 
-    periModel.fit(data[:10000], answers[:10000], nb_epoch=12,batch_size=128)
+    periModel.fit(data, answers, nb_epoch=24,batch_size=128)
     
     x = periModel.predict(data[:10])
     print x
