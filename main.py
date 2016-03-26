@@ -24,7 +24,7 @@ def main():
     answers = np.load('data/peripheryIndexes.npy')
     answers = np_utils.to_categorical(answers,16)
 
-    periModel.fit(data, answers, nb_epoch=6,batch_size=128)
+    periModel.fit(data, answers, nb_epoch=3,batch_size=128)
     
     x = periModel.predict(data[:10])
     print x
@@ -35,6 +35,9 @@ def main():
         plt.subplot(212)
         plt.plot(j)
         plt.show()
+    name = raw_input("If you'd like to save the weights, please enter a savefile name now: ")
+    if name:
+        periModel.save_weights(name, overwrite=False)
     return
 
 if __name__ == '__main__':
