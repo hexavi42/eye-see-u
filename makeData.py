@@ -1,73 +1,56 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pipeline.pipeline import TrainingImage
-from Gen.testImageMaker import randCoord,makeCircle,makeSquare
 from multiprocessing import Process,Pipe
 import shutil,os
 
-def makeImagesV3(filepath,numTriangles):
-    bigImage = np.zeros((3,800,800))
-    tinyImage= np.zeros((1,80,80))
+def makeImages(filepath,numTriangles):
+    imgSize = 800
+    stimSize = imgSize//20 - 1
 
-    bigSquare = np.zeros((3,39,39))
-    bigSquare[0] = np.ones((39,39))*255
-    tinySquare= np.zeros((1,3,3))
-    tinySquare[0]= np.ones((3,3))*255
+    bigImage = np.ones((3, imgSize,    imgSize   ), dtype=np.uint8)*255
+    tinyImage= np.ones((1, imgSize//10, imgSize//10), dtype=np.uint8)*255
+
+    #Make stimuli
+    bigSquare = np.ones((3, stimSize, stimSize), dtype=np.uint8)*255
+    bigSquare[0] = np.zeros((stimSize, stimSize), dtype=np.uint8)
+    tinySquare= np.ones((1, stimSize//10, stimSize//10), dtype=np.uint8)*255
+    tinySquare[0]= np.zeros((stimSize//10, stimSize//10), dtype=np.uint8)
     
-    bigTriangle = np.zeros((3,39,39))
-    for i in range(39):
-        bigTriangle[2,i,:i+1] = np.ones(i+1)*255
-    tinyTriangle = np.zeros((1,3,3))
-    for i in range(3):
-        tinyTriangle[0,i,:i+1] = np.ones(i+1)*255
+    bigTriangle = np.ones((3, stimSize, stimSize), dtype=np.uint8)*255
+    for i in range(stimSize):
+        bigTriangle[2, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
+    tinyTriangle = np.ones((1, stimSize//10, stimSize//10), dtype=np.uint8)*255
+    for i in range(stimSize//10):
+        tinyTriangle[0, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
+
+    #Place in Images
+    bigBorder = (stimSize + 1)//2 #Avoid clipping edge
+    tinyBorder = bigBorder//10
     for i in range(numTriangles):
-        x,y = np.random.randint(20,780,2)
-        bigImage[:,y-19:y+20,x-19:x+20] = bigTriangle
-        tinyImage[0,y/10-1:y/10+2,x/10-1:x/10+2] = tinyTriangle
-    x,y = np.random.randint(20,780,2)
-    bigImage[:,y-19:y+20,x-19:x+20] = bigSquare
-    tinyImage[0,y/10-1:y/10+2,x/10-1:x/10+2] = tinySquare
+        x,y = np.random.randint(bigBorder , imgSize - bigBorder, 2)
+        bigImage[:, y-bigBorder+1:y+bigBorder, x-bigBorder+1:x+bigBorder] = bigTriangle
+        tinyImage[0, y//10-tinyBorder+1:y//10+tinyBorder, x//10-tinyBorder+1:x//10+tinyBorder] = tinyTriangle
+    x,y = np.random.randint(bigBorder , imgSize - bigBorder, 2)
+    bigImage[:, y-bigBorder+1:y+bigBorder, x-bigBorder+1:x+bigBorder] = bigSquare
+    tinyImage[0, y//10-tinyBorder+1:y//10+tinyBorder, x//10-tinyBorder+1:x//10+tinyBorder] = tinySquare
 
-    return [(bigImage,y*800+x),(tinyImage,y/200 * 4 + x/200)]
-
-def makeImagesV2(filepath,numCircles):
-    fig=plt.figure(figsize=[8,8])
-    axis=fig.gca()
-    plt.xticks([])
-    plt.yticks([])
-    for _ in range(numCircles):
-        coords=randCoord()
-        makeCircle(0.03,coords,axis)
-    coords=randCoord()
-    makeSquare(0.05,coords,axis)    
-    plt.tight_layout(pad=0,h_pad=0,w_pad=0)
-    plt.savefig(filepath)
-    plt.close()
-    fove, peri = loadImage(filepath,coords)
-    return fove, peri
-
-def loadImage(filepath,coords):
-    img = TrainingImage(filepath,np.array(coords))
-    foveImg = img.fovealImg
-    foveInd = img.foveInd
-    periImg = img.peripheryImg
-    periInd = img.periInd
-    return [(foveImg,foveInd),(periImg,periInd)]
+    loc = y//(imgSize//4) * 4 + x//(imgSize//4)
+    return [(bigImage, loc),(tinyImage, loc)]
 
 def parallelizedLoops(numImgs,num,numDistractors,conn):
-    # fovealImages = np.zeros((numImgs,800,800,4)) #FOVEA #This is the wrong shape for the network it should be (3,400,400)
-    peripheryImages = np.zeros((numImgs,1,80,80))
-    # fovealIndexes = np.zeros(numImgs) #FOVEA
-    peripheryIndexes = np.zeros(numImgs)
+    fovealImages = np.zeros((numImgs, 3, 800, 800), dtype=np.uint8)
+    peripheryImages = np.zeros((numImgs, 1, 80, 80), dtype=np.uint8)
+    fovealIndexes = np.zeros(numImgs, dtype=np.uint8)
+    peripheryIndexes = np.zeros(numImgs, dtype=np.uint8)
     
     for i in range(numImgs):
-        fove, peri = makeImagesV3('data/tmp/test%s.png'%num,numDistractors)
-        # fovealImages[i] = fove[0] #FOVEA
+        fove, peri = makeImages('data/tmp/test%s.png'%num,numDistractors)
+        fovealImages[i] = fove[0]
         peripheryImages[i] = peri[0]
-        # fovealIndexes[i] = fove[1] #FOVEA
+        fovealIndexes[i] = fove[1]
         peripheryIndexes[i] = peri[1]
 
-    conn.send((None,peripheryImages,None,peripheryIndexes))#(fovealImages,peripheryImages,fovealIndexes,peripheryIndexes)) #FOVEA
+    conn.send((fovealImages,peripheryImages,fovealIndexes,peripheryIndexes))
     return
 
 def refactor(numImgs,numDistractors,iteration):
@@ -85,32 +68,28 @@ def refactor(numImgs,numDistractors,iteration):
         data.append(d)
         proc.join()
 
-    # fovealImages = np.concatenate([data[_][0] for _ in range(numProcess)]) #FOVEA
-    peripheryImages = np.concatenate([data[_][1] for _ in range(numProcess)])
-    # fovealIndexes = np.concatenate([data[_][2] for _ in range(numProcess)]) #FOVEA
-    peripheryIndexes = np.concatenate([data[_][3] for _ in range(numProcess)])
+    filenames = ['fovealImages{}'.format(iteration), 'peripheryImages{}'.format(iteration),
+                 'fovealIndexes{}'.format(iteration), 'peripheryIndexes{}'.format(iteration)]
 
-    # np.save('data/tmp/fovealImages{}.npy'.format(iteration),fovealImages) #FOVEA
-    np.save('data/tmp/peripheryImages{}.npy'.format(iteration),peripheryImages)
-    # np.save('data/tmp/fovealIndexes{}.npy'.format(iteration),fovealIndexes) #FOVEA
-    np.save('data/tmp/peripheryIndexes{}.npy'.format(iteration),peripheryIndexes)
-
-
+    for i,filename in enumerate(filenames):
+        tmp = np.concatenate([ data[_][i] for _ in range(numProcess)])
+        np.save('data/tmp/{}.npy'.format(filename), tmp)
+    
 def main(numImgs,numDistractors):
     if not os.path.exists('data/tmp'):
         os.makedirs('data/tmp')
     
-    subNumImages = 1000 #100 #FOVEA
+    subNumImages = 100
     numIter = numImgs/subNumImages
     for i in range(numIter):
         refactor(subNumImages,numDistractors,i)
         print '{} out of {}'.format(i,numIter)
 
-    dataKinds = ['peripheryImages','peripheryIndexes'] # ['fovealImages','peripheryImages','fovealIndexes','peripheryIndexes'] #FOVEA
+    dataKinds = ['fovealImages','peripheryImages','fovealIndexes','peripheryIndexes']
     for dataType in dataKinds:
         d = np.concatenate([np.load('data/tmp/'+dataType+str(i)+'.npy') for i in range(numIter)])
         np.save('data/{}.npy'.format(dataType),d)
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(20000,0)
+    main(1000,20)
