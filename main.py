@@ -5,6 +5,12 @@ from keras.optimizers import SGD
 from keras.utils import np_utils
 import matplotlib.pyplot as plt
 
+# fix for python 2->3
+try:
+    input = raw_input
+except NameError:
+    pass
+
 
 class PeripheryNet(object):
     model = None
@@ -78,7 +84,7 @@ def main():
     # print(x)
 
 
-    name = raw_input("If you'd like to save the weights, please enter a savefile name now: ")
+    name = input("If you'd like to save the weights, please enter a savefile name now: ")
     if name:
         periModel.save(name)
     return
