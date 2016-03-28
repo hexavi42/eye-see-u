@@ -18,9 +18,9 @@ class PeripheryNet(object):
     def __init__(self, input_shape=[1, 80, 80], sectors=16):
         # Build model
         periModel = Sequential()
-        periModel.add(Convolution2D(4, 8, 8, input_shape=input_shape, init='uniform'))
+        periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='uniform'))
         periModel.add(Activation('relu'))
-        periModel.add(Dropout(0.1))
+        periModel.add(Dropout(0.8))
         # periModel.add(MaxPooling2D(pool_size=(4, 4)))
         periModel.add(Flatten())
         periModel.add(Dense(output_dim=sectors))
@@ -91,7 +91,7 @@ def splitSectors(np_matrix, objHalf=20, numSectors=[4, 4]):
     for layer in np_matrix:
         layer_sect = []
         beforeSect = np.zeros(layer.shape+objHalf*2, dtype=np.int8)
-        size = 
+        size = 0
         # error will happen if size*num < np_matrix.shape
         # currently not handled or needed
         beforeSect[objHalf:objHalf+layer.shape[0], objHalf:objHalf+layer.shape[1]] = layer
@@ -121,8 +121,6 @@ def main():
     print("First choice cases: {0}".format(float(right)/len(predictions)))
     print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
     show_predictions(predictions[:10], data, answers)
-    # print(x)
-
 
     name = input("If you'd like to save the weights, please enter a savefile name now: ")
     if name:
