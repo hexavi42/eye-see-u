@@ -18,7 +18,7 @@ class PeripheryNet(object):
     def __init__(self, input_shape=[1, 80, 80], sectors=16):
         # Build model
         periModel = Sequential()
-        periModel.add(Convolution2D(4, 8, 8, input_shape=input_shape, init='uniform'))
+        periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='uniform'))
         periModel.add(Activation('relu'))
         periModel.add(Dropout(0.1))
         # periModel.add(MaxPooling2D(pool_size=(4, 4)))
@@ -90,15 +90,18 @@ def splitSectors(np_matrix, objHalf=20, numSectors=[4, 4]):
     sectors = []
     for layer in np_matrix:
         layer_sect = []
-        beforeSect = np.zeros(layer.shape+objHalf*2, dtype=np.int8)
-        size = 
+        padShape = np.array(layer.shape)+objHalf*2
+        beforeSect = np.zeros(padShape, dtype=np.int8)
+        size = layer.shape/np.array(numSectors)
         # error will happen if size*num < np_matrix.shape
         # currently not handled or needed
         beforeSect[objHalf:objHalf+layer.shape[0], objHalf:objHalf+layer.shape[1]] = layer
-        for i, j in [range(numSectors[0]), range(numSectors[1])]:
-            layer_sect.append(beforeSect[i:(i+1), j:(j+1)])
-        sectors.append(layer_sect)
-    return sectors
+        for i in range(numSectors[0]):
+            for j in range(numSectors[1]):
+                layer_sect.append(beforeSect[i*size[0]:(i+1)*size[0]+objHalf*2, j*size[1]:(j+1)*size[1]+objHalf*2])
+        sectors.append(np.array(layer_sect))
+    retShape = [numSectors[0]*numSectors[1], np_matrix.shape[0], size[0]+objHalf*2, size[1]+objHalf*2]
+    return np.array(sectors).reshape(retShape)
 
 
 def main():
