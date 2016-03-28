@@ -65,6 +65,7 @@ def main():
     print("First choice cases: {0}".format(float(right)/len(predictions)))
     print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
     show_predictions(predictions[:10], data, answers)
+
     name = input("If you'd like to save the weights, please enter a savefile name now: ")
     if name:
         periModel.save(name)
