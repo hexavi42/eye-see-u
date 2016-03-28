@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process,Pipe
 import shutil,os
 
-def makeImages(filepath,numTriangles):
+def makeImages(numTriangles):
     imgSize = 800
     stimSize = imgSize//20 - 1
 
@@ -44,7 +44,7 @@ def parallelizedLoops(numImgs,num,numDistractors,conn):
     peripheryIndexes = np.zeros(numImgs, dtype=np.uint8)
     
     for i in range(numImgs):
-        fove, peri = makeImages('data/tmp/test%s.png'%num,numDistractors)
+        fove, peri = makeImages(numDistractors)
         fovealImages[i] = fove[0]
         peripheryImages[i] = peri[0]
         fovealIndexes[i] = fove[1]
