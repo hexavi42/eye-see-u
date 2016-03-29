@@ -37,7 +37,7 @@ class PeripheryNet(object):
 class FoveaNet(object):
     model = None
 
-    def __init__(self, input_shape=[3, 219, 219]):
+    def __init__(self, input_shape=[3, 240, 240]):
         # Build model
         fovModel = Sequential()
         fovModel.add(Convolution2D(3, 15, 15, input_shape=input_shape, init='normal'))
@@ -51,6 +51,7 @@ class FoveaNet(object):
         fovModel.add(Dense(output_dim=1))
         fovModel.add(Activation('sigmoid'))
         fovModel.compile(loss='binary_crossentropy', optimizer='rmsprop')
+        self.model = fovModel
 
     def fit(self, data, answers, nb_epoch=3, batch_size=128):
         self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)
