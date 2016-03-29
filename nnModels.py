@@ -44,12 +44,13 @@ class FoveaNet(object):
         fovModel.add(Activation('relu'))
         fovModel.add(Dropout(0.2))
         fovModel.add(MaxPooling2D(pool_size=(2, 2)))
-        fovModel.add(Convolution2D(3, 7, 7, input_shape=input_shape, init='normal'))
+        fovModel.add(Convolution2D(3, 7, 7, init='normal'))
         fovModel.add(Activation('relu'))
         fovModel.add(Dropout(0.2))
         fovModel.add(Flatten())
         fovModel.add(Dense(output_dim=1))
-        fovModel.add(Activation('softmax'))
+        fovModel.add(Activation('sigmoid'))
+        fovModel.compile(loss='binary_crossentropy', optimizer='rmsprop')
 
     def fit(self, data, answers, nb_epoch=3, batch_size=128):
         self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)

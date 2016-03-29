@@ -23,25 +23,28 @@ def show_predictions(model_predict, data, answers):
 
 
 def splitSectors(np_matrix, objHalf=20, numSectors=[4, 4]):
-    sectors = []
+    sectors = [[] for i in range(numSectors[0]*numSectors[1])]
     for layer in np_matrix:
-        layer_sect = []
         padShape = np.array(layer.shape)+objHalf*2
-        beforeSect = np.zeros(padShape, dtype=np.int8)
+        beforeSect = np.ones(padShape, dtype=np.uint8)*255
         size = layer.shape/np.array(numSectors)
         # error will happen if size*num < np_matrix.shape
         # currently not handled or needed
         beforeSect[objHalf:objHalf+layer.shape[0], objHalf:objHalf+layer.shape[1]] = layer
         for i in range(numSectors[0]):
             for j in range(numSectors[1]):
-                layer_sect.append(beforeSect[i*size[0]:(i+1)*size[0]+objHalf*2, j*size[1]:(j+1)*size[1]+objHalf*2])
-        sectors.append(np.array(layer_sect))
-    retShape = [numSectors[0]*numSectors[1], np_matrix.shape[0], size[0]+objHalf*2, size[1]+objHalf*2]
-    return np.array(sectors).reshape(retShape)
+                sectors[i*4+j].append(beforeSect[i*size[0]:(i+1)*size[0]+objHalf*2, j*size[1]:(j+1)*size[1]+objHalf*2])
+    return np.array(sectors)
+
+
+def formRGBImage(np_matrix):
+    assert np_matrix.shape[0] == 3 and len(np_matrix.shape) == 3,\
+        "shape ({0}) of input matrix does not match (3, M, N)".format(np_matrix.shape)
+    return np.stack([np_matrix[0],np_matrix[1],np_matrix[2]],axis=2)
 
 
 def plotSector(sector):
-    plt.imshow(sector.reshape([sector.shape[1], sector.shape[2], sector.shape[0]]))
+    plt.imshow(formRGBImage(sector))
     plt.show()
 
 
