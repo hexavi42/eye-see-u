@@ -3,7 +3,19 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process,Pipe
 import shutil,os
 
-def makeImages(numTriangles):
+def makeSquare(layers,length):
+    square = np.ones((layers, length, length), dtype=np.uint8)*255
+    square[0] = np.zeros((length, length), dtype=np.uint8)
+    return square
+
+def makeTriangle(layers,height):
+    triangle = np.ones((layers, height, height), dtype=np.uint8)*255
+    ind = 2 if layers>1 else 0
+    for i in range(height):
+        triangle[ind, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
+    return triangle
+
+def makeImages(numTriangles, makePeri, makeFove):
     imgSize = 800
     stimSize = imgSize//20 - 1
 
@@ -11,17 +23,11 @@ def makeImages(numTriangles):
     tinyImage= np.ones((1, imgSize//10, imgSize//10), dtype=np.uint8)*255
 
     #Make stimuli
-    bigSquare = np.ones((3, stimSize, stimSize), dtype=np.uint8)*255
-    bigSquare[0] = np.zeros((stimSize, stimSize), dtype=np.uint8)
-    tinySquare= np.ones((1, stimSize//10, stimSize//10), dtype=np.uint8)*255
-    tinySquare[0]= np.zeros((stimSize//10, stimSize//10), dtype=np.uint8)
+    bigSquare   = makeSquare(3, stimSize)
+    bigTriangle = makeTriangle(3, stimSize)
     
-    bigTriangle = np.ones((3, stimSize, stimSize), dtype=np.uint8)*255
-    for i in range(stimSize):
-        bigTriangle[2, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
-    tinyTriangle = np.ones((1, stimSize//10, stimSize//10), dtype=np.uint8)*255
-    for i in range(stimSize//10):
-        tinyTriangle[0, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
+    tinySquare   = makeSquare(1, stimSize//10)
+    tinyTriangle = makeTriangle(1, stimSize//10)
 
     #Place in Images
     bigBorder = (stimSize + 1)//2 #Avoid clipping edge
