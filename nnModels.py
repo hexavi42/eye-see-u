@@ -1,6 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D, Activation, Dense, Flatten, Dropout
 from keras.optimizers import SGD
+from keras.callbacks import EarlyStopping
 
 
 class PeripheryNet(object):
@@ -55,6 +56,9 @@ class FoveaNet(object):
 
     def fit(self, data, answers, nb_epoch=3, batch_size=128):
         self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)
+
+    def fit_generator(self, generator, samples_per_epoch=128, nb_epoch=3, verbose=1,show_accuracy=True):
+        self.model.fit_generator(generator, samples_per_epoch=samples_per_epoch, nb_epoch=nb_epoch, show_accuracy=show_accuracy)
 
     def predict(self, data):
         return self.model.predict(data)

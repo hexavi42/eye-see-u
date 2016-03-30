@@ -2,6 +2,8 @@ import numpy as np
 from keras.utils import np_utils
 import matplotlib.pyplot as plt
 import nnModels
+from makeData import makeFoveImages
+from random import choice
 
 # fix for python 2->3
 try:
@@ -47,31 +49,53 @@ def plotSector(sector):
     plt.imshow(formRGBImage(sector))
     plt.show()
 
+def foveDataGen(numDistractors=20, batch_size=128):
+    while True:
+        triLoc   = np.random.randint(20, 780, (batch_size ,numDistractors, 2))
+        squaLoc  = np.random.randint(20, 780, (batch_size, 2))
+        imgs = np.zeros((batch_size, 3, 240, 240), dtype=np.uint8)
+        ans = np.zeros(batch_size, dtype=np.uint8)
+        for i in range(batch_size):
+            img, loc = makeFoveImages(triLoc[i], squaLoc[i])
+            sectors  = splitSectors(img)
+            if np.random.random()>0.5:
+                imgs[i] = sectors[loc]
+                ans[i]= 1
+            else:
+                newLoc = choice(range(loc)+range(loc,16))                
+                imgs[i] = sectors[newLoc]
+                ans[i]= 0
+        yield (imgs, ans)
+    return
 
 def main():
-    # Fetch Data
-    data = np.load('data/peripheryImages.npy')
-    answers = np.load('data/peripheryIndexes.npy')
-    answers = np_utils.to_categorical(answers, 16)
+    if False:
+        # Fetch Data
+        data = np.load('data/peripheryImages.npy')
+        answers = np.load('data/peripheryIndexes.npy')
+        answers = np_utils.to_categorical(answers, 16)
 
-    periModel = nnModels.PeripheryNet()
-    periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=30, batch_size=128)
+        periModel = nnModels.PeripheryNet()
+        periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=30, batch_size=128)
 
-    predictions = periModel.predict(data[len(data)*3/4:])
-    right = 0
-    topHalf = 0
-    for i, j in enumerate(predictions):
-        if np.argmax(j) == np.argmax(answers[i]):
-            right += 1
-        if np.argmax(answers[i]) in np.argpartition(j, -8)[-8:]:
-            topHalf += 1
-    print("First choice cases: {0}".format(float(right)/len(predictions)))
-    print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
-    show_predictions(predictions[:10], data, answers)
+        predictions = periModel.predict(data[len(data)*3/4:])
+        right = 0
+        topHalf = 0
+        for i, j in enumerate(predictions):
+            if np.argmax(j) == np.argmax(answers[i]):
+                right += 1
+            if np.argmax(answers[i]) in np.argpartition(j, -8)[-8:]:
+                topHalf += 1
+        print("First choice cases: {0}".format(float(right)/len(predictions)))
+        print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
+        show_predictions(predictions[:10], data, answers)
 
-    name = input("If you'd like to save the weights, please enter a savefile name now: ")
-    if name:
-        periModel.save(name)
+        name = input("If you'd like to save the weights, please enter a savefile name now: ")
+        if name:
+            periModel.save(name)
+
+    foveModel = nnModels.FoveaNet()
+    foveModel.fit_generator(foveDataGen(batch_size=16), samples_per_epoch=1024, nb_epoch=3)
     return
 
 
