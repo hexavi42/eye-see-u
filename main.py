@@ -11,6 +11,7 @@ try:
 except NameError:
     pass
 
+
 def show_predictions(model_predict, data, answers):
     for i, j in enumerate(model_predict):
         plt.subplot(211)
@@ -42,31 +43,33 @@ def splitSectors(np_matrix, objHalf=20, numSectors=[4, 4]):
 def formRGBImage(np_matrix):
     assert np_matrix.shape[0] == 3 and len(np_matrix.shape) == 3,\
         "shape ({0}) of input matrix does not match (3, M, N)".format(np_matrix.shape)
-    return np.stack([np_matrix[0],np_matrix[1],np_matrix[2]],axis=2)
+    return np.stack([np_matrix[0], np_matrix[1], np_matrix[2]], axis=2)
 
 
 def plotSector(sector):
     plt.imshow(formRGBImage(sector))
     plt.show()
 
+
 def foveDataGen(numDistractors=20, batch_size=128):
     while True:
-        triLoc   = np.random.randint(20, 780, (batch_size ,numDistractors, 2))
-        squaLoc  = np.random.randint(20, 780, (batch_size, 2))
+        triLoc = np.random.randint(20, 780, (batch_size, numDistractors, 2))
+        squaLoc = np.random.randint(20, 780, (batch_size, 2))
         imgs = np.zeros((batch_size, 3, 240, 240), dtype=np.uint8)
         ans = np.zeros(batch_size, dtype=np.uint8)
         for i in range(batch_size):
             img, loc = makeFoveImages(triLoc[i], squaLoc[i])
-            sectors  = splitSectors(img)
-            if np.random.random()>0.5:
+            sectors = splitSectors(img)
+            if np.random.random() > 0.5:
                 imgs[i] = sectors[loc]
-                ans[i]= 1
+                ans[i] = 1
             else:
-                newLoc = choice(range(loc)+range(loc,16))                
+                newLoc = choice(range(loc)+range(loc, 16))            
                 imgs[i] = sectors[newLoc]
-                ans[i]= 0
+                ans[i] = 0
         yield (imgs, ans)
     return
+
 
 def periDataGen(numDistractors=20, batch_size=128):
     while True:
@@ -82,6 +85,7 @@ def periDataGen(numDistractors=20, batch_size=128):
             ans[i]  = a
         yield (imgs, ans)
     return
+
 
 def main():
     if True:
