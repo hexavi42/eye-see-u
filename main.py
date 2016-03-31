@@ -95,7 +95,7 @@ def main():
         # answers = np_utils.to_categorical(answers, 16)
 
         periModel = nnModels.PeripheryNet()
-        periModel.fit_generator(periDataGen(batch_size=128), samples_per_epoch=128*60, nb_epoch=3)
+        periModel.fit_generator(periDataGen(batch_size=128), samples_per_epoch=60000, nb_epoch=3)
         # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)
 
         predictions = periModel.predict(data[len(data)*3/4:])
