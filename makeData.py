@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from multiprocessing import Process,Pipe
 import shutil,os
+import random
 
 def makeSquare(layers,length):
     square = np.ones((layers, length, length), dtype=np.uint8)*255
@@ -54,6 +55,7 @@ def makeFoveImages(triLoc, squaLoc, imgSize=800):
     return (bigImage, loc)
 
 def parallelizedLoops(numImgs,numDistractors,conn,makeFove=True,makePeri=True):
+    np.random.seed(random.randint(0,4294967295))
     triLocs  = np.random.randint(20, 780, (numImgs ,numDistractors, 2))
     squaLocs = np.random.randint(20, 780, (numImgs, 2))
     
@@ -128,4 +130,4 @@ def main(numImgs, numDistractors, makeFove=True, makePeri=True):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(120000,20,makeFove=False,makePeri=True)
+    main(1200,20,makeFove=False,makePeri=True)
