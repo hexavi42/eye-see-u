@@ -10,26 +10,24 @@ class PeripheryNet(object):
     def __init__(self, input_shape=[1, 80, 80], sectors=16):
         # Build model
         periModel = Sequential()
-        periModel.add(Convolution2D(32, 5, 5, input_shape=input_shape, init='normal'))
+        periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
         periModel.add(Activation('relu'))
         periModel.add(Dropout(0.1))
-        periModel.add(Convolution2D(32, 5, 5, init='normal'))
-        periModel.add(Activation('relu'))
-        periModel.add(Dropout(0.1))
-        # periModel.add(MaxPooling2D(pool_size=(4, 4)))
         periModel.add(Flatten())
         periModel.add(Dense(output_dim=sectors))
         periModel.add(Activation('softmax'))
 
-        sgd = SGD(lr=1e-5, decay=1e-6, momentum=0.9, nesterov=True)
+        sgd = SGD(lr=1e-9, momentum=0.9, nesterov=True)
         periModel.compile(optimizer=sgd, loss='categorical_crossentropy')
         self.model = periModel
 
     def fit(self, data, answers, nb_epoch=3, batch_size=128):
-        self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)
+        history = self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)
+        return history
 
     def fit_generator(self, generator, samples_per_epoch=90000, nb_epoch=3, show_accuracy=True):
-        self.model.fit_generator(generator, samples_per_epoch=samples_per_epoch, nb_epoch=nb_epoch, show_accuracy=show_accuracy)
+        history = self.model.fit_generator(generator, samples_per_epoch=samples_per_epoch, nb_epoch=nb_epoch, show_accuracy=show_accuracy)
+        return history
 
     def predict(self, data):
         return self.model.predict(data)
