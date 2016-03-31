@@ -10,7 +10,7 @@ class PeripheryNet(object):
     def __init__(self, input_shape=[1, 80, 80], sectors=16):
         # Build model
         periModel = Sequential()
-        periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='uniform'))
+        periModel.add(Convolution2D(32, 5, 5, input_shape=input_shape, init='normal'))
         periModel.add(Activation('relu'))
         periModel.add(Dropout(0.1))
         # periModel.add(MaxPooling2D(pool_size=(4, 4)))
