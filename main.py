@@ -2,7 +2,7 @@ import numpy as np
 from keras.utils import np_utils
 import matplotlib.pyplot as plt
 import nnModels
-from makeData import makeFoveImages
+from makeData import makeFoveImages, makePeriImages
 from random import choice
 
 # fix for python 2->3
@@ -68,15 +68,31 @@ def foveDataGen(numDistractors=20, batch_size=128):
         yield (imgs, ans)
     return
 
+def periDataGen(numDistractors=20, batch_size=128):
+    while True:
+        triLoc   = np.random.randint(20, 780, (batch_size ,numDistractors, 2))
+        squaLoc  = np.random.randint(20, 780, (batch_size, 2))
+        imgs = np.zeros((batch_size, 1, 80, 80), dtype=np.uint8)
+        ans = np.zeros((batch_size,16), dtype=np.uint8)
+        for i in range(batch_size):
+            img, loc = makePeriImages(triLoc[i], squaLoc[i])
+            imgs[i] = img
+            a = np.zeros(16)
+            a[loc] = 1
+            ans[i]  = a
+        yield (imgs, ans)
+    return
+
 def main():
-    if False:
+    if True:
         # Fetch Data
-        data = np.load('data/peripheryImages.npy')
-        answers = np.load('data/peripheryIndexes.npy')
-        answers = np_utils.to_categorical(answers, 16)
+        # data = np.load('data/peripheryImages.npy')
+        # answers = np.load('data/peripheryIndexes.npy')
+        # answers = np_utils.to_categorical(answers, 16)
 
         periModel = nnModels.PeripheryNet()
-        periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=30, batch_size=128)
+        periModel.fit_generator(periDataGen(batch_size=128), samples_per_epoch=90000, nb_epoch=3)
+        # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)
 
         predictions = periModel.predict(data[len(data)*3/4:])
         right = 0

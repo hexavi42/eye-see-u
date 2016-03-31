@@ -25,6 +25,9 @@ class PeripheryNet(object):
     def fit(self, data, answers, nb_epoch=3, batch_size=128):
         self.model.fit(data, answers, nb_epoch=nb_epoch, batch_size=batch_size, show_accuracy=True)
 
+    def fit_generator(self, generator, samples_per_epoch=90000, nb_epoch=3, show_accuracy=True):
+        self.model.fit_generator(generator, samples_per_epoch=samples_per_epoch, nb_epoch=nb_epoch, show_accuracy=show_accuracy)
+
     def predict(self, data):
         return self.model.predict(data)
 
