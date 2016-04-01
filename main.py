@@ -56,17 +56,17 @@ def foveDataGen(numDistractors=20, batch_size=128):
         triLoc = np.random.randint(40, 360, (batch_size, numDistractors, 2))
         squaLoc = np.random.randint(40, 360, (batch_size, 2))
         imgs = np.zeros((batch_size, 3, 140, 140), dtype=np.uint8)
-        ans = np.zeros(batch_size, dtype=np.uint8)
+        ans = np.zeros((batch_size, 2), dtype=np.uint8)
         for i in range(batch_size):
             img, loc = makeFoveImages(triLoc[i], squaLoc[i])
             sectors = splitSectors(img)
             if np.random.random() > 0.5:
                 imgs[i] = sectors[loc]
-                ans[i] = 1
+                ans[i][0] = 1
             else:
                 newLoc = choice(range(loc)+range(loc+1, 16))            
                 imgs[i] = sectors[newLoc]
-                ans[i] = 0
+                ans[i][1] = 0
         yield (imgs, ans)
     return
 
@@ -76,17 +76,17 @@ def periDataGen(numDistractors=20, batch_size=128):
         triLoc   = np.random.randint(40, 360, (batch_size ,numDistractors, 2))
         squaLoc  = np.random.randint(40, 360, (batch_size, 2))
         imgs = np.zeros((batch_size, 1, 28, 28), dtype=np.uint8)
-        ans = np.zeros(batch_size, dtype=np.uint8)
+        ans = np.zeros((batch_size, 2), dtype=np.uint8)
         for i in range(batch_size):
             img, loc = makePeriImages(triLoc[i], squaLoc[i])
             sectors = splitSectors(img, objHalf=4)
             if np.random.random() > 0.5:
                 imgs[i] = sectors[loc]
-                ans[i]  = 1
+                ans[i][0]  = 1
             else:
                 newLoc = choice(range(loc)+range(loc+1, 16))
                 imgs[i]= sectors[newLoc]
-                ans[i]    = 0
+                ans[i][1]    = 0
 
         yield (imgs, ans)
     return
@@ -95,26 +95,35 @@ def periDataGen(numDistractors=20, batch_size=128):
 def main():
     if True:
         # Fetch Data
-        data = np.load('data/peripheryImages.npy')
-        answers = np.load('data/peripheryIndexes.npy')
-        answers = np_utils.to_categorical(answers, 16)
+#        data = np.load('data/peripheryImages.npy')
+#        answers = np.load('data/peripheryIndexes.npy')
+#        answers = np_utils.to_categorical(answers, 16)
 
         periModel = nnModels.PeripheryNet()
-        H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=20)
+        H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=1)
         # plt.semilogy(H.history['loss'])
         # plt.show()
         # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)
-
+	
+	data = []
+	answers = []
+	gen = periDataGen(numDistractors=20, batch_size=1000)
+	tmp = gen.next()
+	for t in tmp:
+		data.append(t[0])
+		answers.append(t[1])
+	data, answers = np.array(data), np.array(answers)
+		
         predictions = periModel.predict(data)
         right = 0
-        topHalf = 0
+#        topHalf = 0
         for i, j in enumerate(predictions):
             if np.argmax(j) == np.argmax(answers[i]):
                 right += 1
-            if np.argmax(answers[i]) in np.argpartition(j, -8)[-8:]:
-                topHalf += 1
+#            if np.argmax(answers[i]) in np.argpartition(j, -8)[-8:]:
+#                topHalf += 1
         print("First choice cases: {0}".format(float(right)/len(predictions)))
-        print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
+#        print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
         # show_predictions(predictions[:10], data, answers)
 
         name = input("If you'd like to save the weights, please enter a savefile name now: ")
