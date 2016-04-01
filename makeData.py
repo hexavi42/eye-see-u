@@ -16,27 +16,26 @@ def makeTriangle(layers, height):
         triangle[ind, i, :i+1] = np.zeros(i+1, dtype=np.uint8)
     return triangle
 
-def makePeriImages(triLoc, squaLoc, imgSize=800):
-    stimSize = imgSize//20 - 1
-    tinyImage= np.ones((1, imgSize//10, imgSize//10), dtype=np.uint8)*255
+def makePeriImages(triLoc, squaLoc, imgSize=400):
+    stimSize = imgSize//10 - 1
+    tinyImage= np.ones((1, imgSize//5, imgSize//5), dtype=np.uint8)*255
 
     #Make stimuli
-    tinySquare   = makeSquare(1, stimSize//10)
-    tinyTriangle = makeTriangle(1, stimSize//10)
+    tinySquare   = makeSquare(1, stimSize//5)
+    tinyTriangle = makeTriangle(1, stimSize//5)
 
     #Place in Images
-    bigBorder = (stimSize + 1)//2 #Avoid clipping edge
-    tinyBorder = bigBorder//10
+    tinyBorder = ((stimSize + 1)//2)//5 #Avoid clipping edge
     for x,y in triLoc:
-        tinyImage[0, y//10-tinyBorder+1:y//10+tinyBorder, x//10-tinyBorder+1:x//10+tinyBorder] = tinyTriangle
+        tinyImage[0, y//5-tinyBorder+1:y//5+tinyBorder, x//5-tinyBorder+1:x//5+tinyBorder] = tinyTriangle
     x,y = squaLoc
-    tinyImage[0, y//10-tinyBorder+1:y//10+tinyBorder, x//10-tinyBorder+1:x//10+tinyBorder] = tinySquare
+    tinyImage[0, y//5-tinyBorder+1:y//5+tinyBorder, x//5-tinyBorder+1:x//5+tinyBorder] = tinySquare
 
     loc = y//(imgSize//4) * 4 + x//(imgSize//4)
     return (tinyImage, loc)
 
-def makeFoveImages(triLoc, squaLoc, imgSize=800):
-    stimSize = imgSize//20 - 1
+def makeFoveImages(triLoc, squaLoc, imgSize=400):
+    stimSize = imgSize//10 - 1
     bigImage = np.ones((3, imgSize,    imgSize   ), dtype=np.uint8)*255
 
     #Make stimuli
@@ -45,7 +44,6 @@ def makeFoveImages(triLoc, squaLoc, imgSize=800):
 
     #Place in Images
     bigBorder = (stimSize + 1)//2 #Avoid clipping edge
-    tinyBorder = bigBorder//10
     for x,y in triLoc:
         bigImage[:, y-bigBorder+1:y+bigBorder, x-bigBorder+1:x+bigBorder] = bigTriangle
     x,y = squaLoc
@@ -56,12 +54,12 @@ def makeFoveImages(triLoc, squaLoc, imgSize=800):
 
 def parallelizedLoops(numImgs,numDistractors,conn,makeFove=True,makePeri=True):
     np.random.seed(random.randint(0,4294967295))
-    triLocs  = np.random.randint(20, 780, (numImgs ,numDistractors, 2))
-    squaLocs = np.random.randint(20, 780, (numImgs, 2))
+    triLocs  = np.random.randint(40, 360, (numImgs ,numDistractors, 2))
+    squaLocs = np.random.randint(40, 360, (numImgs, 2))
     
     results = {}
     if makeFove:
-        results['fovealImages'] = np.zeros((numImgs, 3, 800, 800), dtype=np.uint8)
+        results['fovealImages'] = np.zeros((numImgs, 3, 400, 400), dtype=np.uint8)
         results['fovealIndexes'] = np.zeros(numImgs, dtype=np.uint8)
         for i in range(numImgs):
             fove = makeFoveImages(triLocs[i],squaLocs[i])
@@ -130,4 +128,4 @@ def main(numImgs, numDistractors, makeFove=True, makePeri=True):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(1000, 2, makeFove=False, makePeri=True)
+    main(100, 20, makeFove=True, makePeri=True)
