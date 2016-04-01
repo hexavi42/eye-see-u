@@ -13,20 +13,17 @@ class PeripheryNet(object):
         
 	periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
         periModel.add(Activation('relu'))
-	periModel.add(Convolution2D(4, 5, 5))
+	periModel.add(Convolution2D(4, 3, 3))
 	periModel.add(Activation('relu'))
 
-	periModel.add(Convolution2D(4, 5, 5, init='normal'))
-        periModel.add(Activation('relu'))
-	periModel.add(Convolution2D(4, 5, 5))
-	periModel.add(Activation('relu'))
-
-	periModel.add(Convolution2D(4, 5, 5, init='normal'))
-        periModel.add(Activation('relu'))
-	periModel.add(Convolution2D(4, 5, 5, init='normal'))
-        periModel.add(Activation('relu'))
+#	periModel.add(Convolution2D(4, 5, 5, init='normal'))
+#       periModel.add(Activation('relu'))
+#	periModel.add(Convolution2D(4, 3, 3))
+#	periModel.add(Activation('relu'))
         
 	periModel.add(Flatten())
+	periModel.add(Dense(256))
+	periModel.add(Activation('relu'))
 	periModel.add(Dense(256))
 	periModel.add(Activation('relu'))
 

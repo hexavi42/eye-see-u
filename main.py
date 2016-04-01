@@ -90,17 +90,17 @@ def periDataGen(numDistractors=20, batch_size=128):
 def main():
     if True:
         # Fetch Data
-        # data = np.load('data/peripheryImages.npy')
-        # answers = np.load('data/peripheryIndexes.npy')
-        # answers = np_utils.to_categorical(answers, 16)
+        data = np.load('data/peripheryImages.npy')
+        answers = np.load('data/peripheryIndexes.npy')
+        answers = np_utils.to_categorical(answers, 16)
 
         periModel = nnModels.PeripheryNet()
-        H = periModel.fit_generator(periDataGen(numDistractors=0, batch_size=128), samples_per_epoch=60000, nb_epoch=100)
+        H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=100)
         # plt.semilogy(H.history['loss'])
         # plt.show()
         # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)
 
-        predictions = periModel.predict(data[len(data)*3/4:])
+        predictions = periModel.predict(data)
         right = 0
         topHalf = 0
         for i, j in enumerate(predictions):
@@ -110,14 +110,14 @@ def main():
                 topHalf += 1
         print("First choice cases: {0}".format(float(right)/len(predictions)))
         print("Top half of cases: {0}".format(float(topHalf)/len(predictions)))
-        show_predictions(predictions[:10], data, answers)
+        # show_predictions(predictions[:10], data, answers)
 
         name = input("If you'd like to save the weights, please enter a savefile name now: ")
         if name:
             periModel.save(name)
 
-    foveModel = nnModels.FoveaNet()
-    foveModel.fit_generator(foveDataGen(batch_size=16), samples_per_epoch=1024, nb_epoch=3)
+    # foveModel = nnModels.FoveaNet()
+    # foveModel.fit_generator(foveDataGen(batch_size=16), samples_per_epoch=1024, nb_epoch=3)
     return
 
 
