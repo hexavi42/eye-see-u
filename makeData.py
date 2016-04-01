@@ -130,4 +130,4 @@ def main(numImgs, numDistractors, makeFove=True, makePeri=True):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(1000, 20, makeFove=False, makePeri=True)
+    main(1000, 2, makeFove=False, makePeri=True)
