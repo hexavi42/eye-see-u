@@ -7,25 +7,25 @@ from keras.callbacks import EarlyStopping
 class PeripheryNet(object):
     model = None
 
-    def __init__(self, input_shape=[1, 80, 80], sectors=16):
+    def __init__(self, input_shape=[1, 28, 28], sectors=2):
         # Build model
         periModel = Sequential()
         
-	periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
+    	periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
         periModel.add(Activation('relu'))
-	periModel.add(Convolution2D(4, 3, 3))
-	periModel.add(Activation('relu'))
+    	periModel.add(Convolution2D(4, 3, 3))
+    	periModel.add(Activation('relu'))
 
-#	periModel.add(Convolution2D(4, 5, 5, init='normal'))
-#       periModel.add(Activation('relu'))
-#	periModel.add(Convolution2D(4, 3, 3))
-#	periModel.add(Activation('relu'))
+    #	periModel.add(Convolution2D(4, 5, 5, init='normal'))
+    #   periModel.add(Activation('relu'))
+    #	periModel.add(Convolution2D(4, 3, 3))
+    #	periModel.add(Activation('relu'))
         
-	periModel.add(Flatten())
-	periModel.add(Dense(256))
-	periModel.add(Activation('relu'))
-	periModel.add(Dense(256))
-	periModel.add(Activation('relu'))
+    	periModel.add(Flatten())
+    	periModel.add(Dense(256))
+    	periModel.add(Activation('relu'))
+    	periModel.add(Dense(256))
+    	periModel.add(Activation('relu'))
 
         periModel.add(Dense(output_dim=sectors))
         periModel.add(Activation('softmax'))

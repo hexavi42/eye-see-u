@@ -53,9 +53,9 @@ def plotSector(sector):
 
 def foveDataGen(numDistractors=20, batch_size=128):
     while True:
-        triLoc = np.random.randint(20, 780, (batch_size, numDistractors, 2))
-        squaLoc = np.random.randint(20, 780, (batch_size, 2))
-        imgs = np.zeros((batch_size, 3, 240, 240), dtype=np.uint8)
+        triLoc = np.random.randint(40, 360, (batch_size, numDistractors, 2))
+        squaLoc = np.random.randint(40, 360, (batch_size, 2))
+        imgs = np.zeros((batch_size, 3, 140, 140), dtype=np.uint8)
         ans = np.zeros(batch_size, dtype=np.uint8)
         for i in range(batch_size):
             img, loc = makeFoveImages(triLoc[i], squaLoc[i])
@@ -64,7 +64,7 @@ def foveDataGen(numDistractors=20, batch_size=128):
                 imgs[i] = sectors[loc]
                 ans[i] = 1
             else:
-                newLoc = choice(range(loc)+range(loc, 16))            
+                newLoc = choice(range(loc)+range(loc+1, 16))            
                 imgs[i] = sectors[newLoc]
                 ans[i] = 0
         yield (imgs, ans)
@@ -73,16 +73,21 @@ def foveDataGen(numDistractors=20, batch_size=128):
 
 def periDataGen(numDistractors=20, batch_size=128):
     while True:
-        triLoc   = np.random.randint(20, 780, (batch_size ,numDistractors, 2))
-        squaLoc  = np.random.randint(20, 780, (batch_size, 2))
-        imgs = np.zeros((batch_size, 1, 80, 80), dtype=np.uint8)
-        ans = np.zeros((batch_size,16), dtype=np.uint8)
+        triLoc   = np.random.randint(40, 360, (batch_size ,numDistractors, 2))
+        squaLoc  = np.random.randint(40, 360, (batch_size, 2))
+        imgs = np.zeros((batch_size, 1, 28, 28), dtype=np.uint8)
+        ans = np.zeros(batch_size, dtype=np.uint8)
         for i in range(batch_size):
             img, loc = makePeriImages(triLoc[i], squaLoc[i])
-            imgs[i] = img
-            a = np.zeros(16)
-            a[loc] = 1
-            ans[i]  = a
+            sectors = splitSectors(img, objHalf=4)
+            if np.random.random() > 0.5:
+                imgs[i] = sectors[loc]
+                ans[i]  = 1
+            else:
+                newLoc = choice(range(loc)+range(loc+1, 16))
+                imgs[i]= sectors[newLoc]
+                ans[i]    = 0
+
         yield (imgs, ans)
     return
 
