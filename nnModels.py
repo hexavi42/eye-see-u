@@ -10,14 +10,30 @@ class PeripheryNet(object):
     def __init__(self, input_shape=[1, 80, 80], sectors=16):
         # Build model
         periModel = Sequential()
-        periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
+        
+	periModel.add(Convolution2D(4, 5, 5, input_shape=input_shape, init='normal'))
         periModel.add(Activation('relu'))
-        periModel.add(Dropout(0.1))
-        periModel.add(Flatten())
+	periModel.add(Convolution2D(4, 5, 5))
+	periModel.add(Activation('relu'))
+
+	periModel.add(Convolution2D(4, 5, 5, init='normal'))
+        periModel.add(Activation('relu'))
+	periModel.add(Convolution2D(4, 5, 5))
+	periModel.add(Activation('relu'))
+
+	periModel.add(Convolution2D(4, 5, 5, init='normal'))
+        periModel.add(Activation('relu'))
+	periModel.add(Convolution2D(4, 5, 5, init='normal'))
+        periModel.add(Activation('relu'))
+        
+	periModel.add(Flatten())
+	periModel.add(Dense(256))
+	periModel.add(Activation('relu'))
+
         periModel.add(Dense(output_dim=sectors))
         periModel.add(Activation('softmax'))
 
-        sgd = SGD(lr=1e-9, momentum=0.9, nesterov=True)
+        sgd = SGD(lr=1e-6, momentum=0.9, nesterov=True)
         periModel.compile(optimizer=sgd, loss='categorical_crossentropy')
         self.model = periModel
 
