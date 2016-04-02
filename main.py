@@ -70,7 +70,6 @@ def foveDataGen(numDistractors=20, batch_size=128):
         yield (imgs, ans)
     return
 
-
 def periDataGen(numDistractors=20, batch_size=128):
     while True:
         triLoc   = np.random.randint(40, 360, (batch_size ,numDistractors, 2))
@@ -86,7 +85,7 @@ def periDataGen(numDistractors=20, batch_size=128):
             else:
                 newLoc = choice(range(loc)+range(loc+1, 16))
                 imgs[i]= sectors[newLoc]
-                ans[i][1]    = 0
+                ans[i][1]    = 1
 
         yield (imgs, ans)
     return
@@ -94,29 +93,26 @@ def periDataGen(numDistractors=20, batch_size=128):
 
 def main():
     if True:
-        # Fetch Data
-#        data = np.load('data/peripheryImages.npy')
-#        answers = np.load('data/peripheryIndexes.npy')
-#        answers = np_utils.to_categorical(answers, 16)
+        # Make Validation Data
+        data = []
+        answers = []
+        gen = periDataGen(numDistractors=20, batch_size=1000)
+        valImgs, valAns = gen.next()
+        for img,ans in zip(valImgs,valAns):
+            data.append(img)
+            answers.append(ans)
+
+        data, answers = np.array(data), np.array(answers)
 
         periModel = nnModels.PeripheryNet()
         H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=1)
         # plt.semilogy(H.history['loss'])
         # plt.show()
         # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)
-	
-	data = []
-	answers = []
-	gen = periDataGen(numDistractors=20, batch_size=1000)
-	tmp = gen.next()
-	for t in tmp:
-		data.append(t[0])
-		answers.append(t[1])
-	data, answers = np.array(data), np.array(answers)
-		
+			
         predictions = periModel.predict(data)
         right = 0
-#        topHalf = 0
+#       topHalf = 0
         for i, j in enumerate(predictions):
             if np.argmax(j) == np.argmax(answers[i]):
                 right += 1
