@@ -25,7 +25,7 @@ class PeripheryNet(object):
         periModel.add(Dense(output_dim=sectors))
         periModel.add(Activation('softmax'))
 
-        sgd = SGD(lr=1e-2, momentum=0.9, nesterov=True)
+        sgd = SGD(lr=1e-6, momentum=0.9, nesterov=True)
         periModel.compile(optimizer=sgd, loss='categorical_crossentropy')
         self.model = periModel
 
