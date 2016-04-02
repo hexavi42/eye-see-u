@@ -4,7 +4,7 @@ from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping
 import numpy as np
 from makeData import makeFoveImages, makePeriImages
-from main import splitSectors
+from helper import splitSectors
 from random import choice
 
 
