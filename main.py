@@ -88,7 +88,7 @@ def main():
     if args.trainFove:
         # Train FovealNet
         foveModel = nnModels.FoveaNet()
-        foveModel.fit_generator(batch_size=128, samples_per_epoch=12800, nb_epoch=10)
+        foveModel.fit_generator(batch_size=128, samples_per_epoch=12800, nb_epoch=100)
 
         # Load Validation Data
         data    = np.load('data/fovealImages.npy')
