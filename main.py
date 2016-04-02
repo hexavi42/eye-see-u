@@ -67,7 +67,7 @@ def main():
     args = parser.parse_args()
 
     if args.trainPeri:
-        # Train Periphery Net
+        # Train PeripheryNet
         periModel = nnModels.PeripheryNet()
         periModel.fit_generator(batch_size=128, samples_per_epoch=60032, nb_epoch=20)
         
@@ -86,8 +86,23 @@ def main():
             periModel.save(name)
 
     if args.trainFove:
+        # Train FovealNet
         foveModel = nnModels.FoveaNet()
-        foveModel.fit_generator(foveDataGen(batch_size=16), samples_per_epoch=1024, nb_epoch=3)
+        foveModel.fit_generator(batch_size=128, samples_per_epoch=12800, nb_epoch=10)
+
+        # Load Validation Data
+        data    = np.load('data/fovealImages.npy')
+        answers = np.load('data/fovealIndexes.npy')
+        data, answers = processForValidation(data, answers, objHalf=20)
+
+        # Validate Foveal Net
+        predictions = foveModel.predict(data)
+        right = np.sum(np.argmax(predictions, axis=1) == np.argmax(answers, axis=1))
+        print("First choice cases: {0}".format(float(right)/len(predictions)))
+
+        name = input("If you'd like to save the weights, please enter a savefile name now: ")
+        if name:
+            foveModel.save(name)
     return
 
 

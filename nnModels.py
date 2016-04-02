@@ -117,7 +117,7 @@ class FoveaNet(object):
                 else:
                     newLoc = choice(range(loc)+range(loc+1, 16))            
                     imgs[i] = sectors[newLoc]
-                    ans[i][1] = 0
+                    ans[i][1] = 1
             yield (imgs, ans)
 
     def predict(self, data):
