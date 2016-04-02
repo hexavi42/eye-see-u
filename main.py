@@ -105,7 +105,7 @@ def main():
         data, answers = np.array(data), np.array(answers)
 
         periModel = nnModels.PeripheryNet()
-        H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=5)
+        H = periModel.fit_generator(periDataGen(numDistractors=20, batch_size=128), samples_per_epoch=60032, nb_epoch=10)
         # plt.semilogy(H.history['loss'])
         # plt.show()
         # periModel.fit(data[:len(data)*3/4], answers[:len(answers)*3/4], nb_epoch=3, batch_size=128)

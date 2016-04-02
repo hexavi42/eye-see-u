@@ -22,8 +22,6 @@ class PeripheryNet(object):
     #	periModel.add(Activation('relu'))
         
     	periModel.add(Flatten())
-    	periModel.add(Dense(256))
-    	periModel.add(Activation('relu'))
 #    	periModel.add(Dense(256))
 #    	periModel.add(Activation('relu'))
 
