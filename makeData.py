@@ -9,6 +9,7 @@ import random
 def makeSquare(layers, length, color=[0, 255, 255]):
     square = np.ones((layers, length, length), dtype=np.uint8)
     ind = range(layers) if layers > 1 else [0]
+    color = color if layers > 1 else [0]
     for layer in ind:
         square[layer] = square[layer]*color[layer]
     return square
@@ -16,9 +17,8 @@ def makeSquare(layers, length, color=[0, 255, 255]):
 
 def makeTriangle(layers, height, color=[255, 255, 0]):
     triangle = np.ones((layers, height, height), dtype=np.uint8)*255
-    for layer_ind in range(len(color)):
-        triangle[layer_ind] = triangle[layer_ind]*color[layer_ind]
     ind = range(layers) if layers > 1 else [0]
+    color = color if layers > 1 else [0]
     for i in range(height):
         for layer in ind:
             triangle[layer, i, :i+1] = np.ones(i+1, dtype=np.uint8)*color[layer]
@@ -141,4 +141,4 @@ def main(numImgs, numDistractors, makeFove=True, makePeri=True):
     shutil.rmtree('data/tmp/')
 
 if __name__ == '__main__':
-    main(100, 20, makeFove=True, makePeri=True)
+    main(1000, 20, makeFove=True, makePeri=True)
